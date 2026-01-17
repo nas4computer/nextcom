@@ -3,98 +3,120 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CAC Registration Form</title>
+<title>Nextcom CAC Reg Form</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+body { background-color: #f1f5f9; }
+.input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; outline: none; }
+.input:focus { border-color: #2563EB; }
+.upload-btn { width: 100%; padding: 12px; border-radius: 10px; background: #e0e7ff; border: 1px dashed #94a3b8; font-weight: 500; cursor:pointer; }
+.btn-primary { background-color: #1E40AF; color: white; }
+.btn-primary:hover { background-color: #2563EB; }
+</style>
 </head>
-<body class="bg-slate-100">
+<body>
 
 <div class="max-w-5xl mx-auto px-4 py-10">
   <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
-
-    <h1 class="text-3xl font-bold text-center mb-8">CAC Registration Form</h1>
+    <!-- LOGO + TITLE -->
+    <div class="flex items-center justify-center mb-8">
+      <img src="https://nextcom.hexat.com/assets/logo.png" alt="Nextcom Logo" class="h-16 mr-4">
+      <h1 class="text-3xl font-bold text-blue-900">Nextcom CAC Reg Form</h1>
+    </div>
 
     <form id="cacForm">
 
-      <!-- COMPANY NAME -->
-      <section class="mb-8">
-        <h2 class="text-xl font-semibold mb-4">Proposed Company Names</h2>
+      <!-- PROPOSED COMPANY NAMES -->
+      <section class="mb-6">
+        <h2 class="text-xl font-semibold mb-4 text-blue-900">Proposed Company Names</h2>
         <input required name="company_name_1" placeholder="Proposed Company Name 1" class="input mb-3">
         <input name="company_name_2" placeholder="Proposed Company Name 2" class="input">
       </section>
 
-      <!-- PERSONAL INFO -->
-      <section class="mb-8">
-        <h2 class="text-xl font-semibold mb-4">Personal Information</h2>
-        <div class="grid md:grid-cols-2 gap-4">
-          <input required name="first_name" placeholder="First Name" class="input">
-          <input required name="surname" placeholder="Surname" class="input">
-          <input name="middle_name" placeholder="Middle Name" class="input">
-          <input required type="date" name="dob" class="input">
-          <input required type="email" name="email" placeholder="Email" class="input">
-          <input required name="phone" placeholder="Phone Number" class="input">
-        </div>
-        <textarea required name="address" placeholder="Full Residential Address" class="input mt-4"></textarea>
+      <!-- ENTITY TYPE -->
+      <section class="mb-6">
+        <h2 class="text-xl font-semibold mb-4 text-blue-900">Select Entity Type</h2>
+        <select required name="entity_type" class="input">
+          <option value="">Select Business Entity Type</option>
+          <option value="Private Limited Company">Private Limited Company - ₦35,000</option>
+          <option value="Public Limited Company">Public Limited Company - ₦35,000</option>
+          <option value="Business Name (Sole Proprietorship)">Business Name (Sole Proprietorship) - ₦35,000</option>
+          <option value="Partnership">Partnership - ₦35,000</option>
+        </select>
       </section>
 
       <!-- DIRECTORS -->
       <section class="mb-8">
-        <h2 class="text-xl font-semibold mb-4">Directors</h2>
+        <h2 class="text-xl font-semibold mb-4 text-blue-900">Directors</h2>
         <div id="directors-container">
           <div class="director-section mb-4 border p-4 rounded">
-            <input required name="director_name_1" placeholder="Director Full Name" class="input mb-2">
+            <h3 class="font-semibold mb-2">Director 1</h3>
+            <input required name="director_first_name_1" placeholder="First Name" class="input mb-2">
+            <input required name="director_surname_1" placeholder="Surname" class="input mb-2">
+            <input required name="director_middle_name_1" placeholder="Middle Name" class="input mb-2">
+            <input required type="date" name="director_dob_1" class="input mb-2">
             <input required type="email" name="director_email_1" placeholder="Email" class="input mb-2">
-            <input required name="director_phone_1" placeholder="Phone Number" class="input mb-2">
+            <input required type="tel" pattern="\d*" name="director_phone_1" placeholder="Phone Number" class="input mb-2">
+            <select required name="director_id_type_1" class="input mb-2">
+              <option value="">Select Means of ID</option>
+              <option>NIN</option>
+              <option>International Passport</option>
+              <option>Voter’s Card</option>
+              <option>Driver’s License</option>
+            </select>
+            <input required type="tel" pattern="\d*" name="director_id_number_1" placeholder="ID Number" class="input mb-2">
+            <input required type="tel" pattern="\d*" name="director_shares_1" placeholder="Shares Allotted" class="input mb-2">
+
+            <!-- Director uploads -->
+            <button type="button" onclick="uploadID('1')" class="upload-btn mb-2">Upload ID</button>
+            <input type="hidden" name="director_id_url_1" id="director_id_url_1">
+            <button type="button" onclick="uploadSignature('1')" class="upload-btn mb-2">Upload Signature</button>
+            <input type="hidden" name="director_signature_url_1" id="director_signature_url_1">
+            <button type="button" onclick="uploadPassport('1')" class="upload-btn mb-2">Upload Passport</button>
+            <input type="hidden" name="director_passport_url_1" id="director_passport_url_1">
           </div>
         </div>
-        <button type="button" onclick="addDirector()" class="mb-4 bg-green-600 text-white px-4 py-2 rounded">Add Director</button>
+        <button type="button" onclick="addDirector()" class="mb-4 btn-primary px-4 py-2 rounded">Add Director</button>
       </section>
 
-      <!-- SECRETARIES -->
+      <!-- SECRETARY -->
       <section class="mb-8">
-        <h2 class="text-xl font-semibold mb-4">Secretaries</h2>
-        <div id="secretaries-container">
-          <div class="secretary-section mb-4 border p-4 rounded">
-            <input name="secretary_name_1" placeholder="Secretary Full Name" class="input mb-2">
-            <input type="email" name="secretary_email_1" placeholder="Email" class="input mb-2">
-            <input name="secretary_phone_1" placeholder="Phone Number" class="input mb-2">
-          </div>
+        <h2 class="text-xl font-semibold mb-4 text-blue-900">Secretary</h2>
+        <div class="secretary-section mb-4 border p-4 rounded">
+          <input required name="secretary_first_name" placeholder="First Name" class="input mb-2">
+          <input required name="secretary_surname" placeholder="Surname" class="input mb-2">
+          <input required name="secretary_middle_name" placeholder="Middle Name" class="input mb-2">
+          <input required type="date" name="secretary_dob" class="input mb-2">
+          <input required type="email" name="secretary_email" placeholder="Email" class="input mb-2">
+          <input required type="tel" pattern="\d*" name="secretary_phone" placeholder="Phone Number" class="input mb-2">
+          <select required name="secretary_id_type" class="input mb-2">
+            <option value="">Select Means of ID</option>
+            <option>NIN</option>
+            <option>International Passport</option>
+            <option>Voter’s Card</option>
+            <option>Driver’s License</option>
+          </select>
+          <input required type="tel" pattern="\d*" name="secretary_id_number" placeholder="ID Number" class="input mb-2">
+
+          <!-- Secretary uploads -->
+          <button type="button" onclick="uploadID('secretary')" class="upload-btn mb-2">Upload ID</button>
+          <input type="hidden" name="secretary_id_url" id="secretary_id_url">
+          <button type="button" onclick="uploadSignature('secretary')" class="upload-btn mb-2">Upload Signature</button>
+          <input type="hidden" name="secretary_signature_url" id="secretary_signature_url">
+          <button type="button" onclick="uploadPassport('secretary')" class="upload-btn mb-2">Upload Passport</button>
+          <input type="hidden" name="secretary_passport_url" id="secretary_passport_url">
         </div>
-        <button type="button" onclick="addSecretary()" class="mb-4 bg-green-600 text-white px-4 py-2 rounded">Add Secretary</button>
-      </section>
-
-      <!-- IDENTIFICATION -->
-      <section class="mb-8">
-        <h2 class="text-xl font-semibold mb-4">Identification</h2>
-        <select required name="id_type" class="input">
-          <option value="">Select Means of Identification</option>
-          <option>NIN</option>
-          <option>International Passport</option>
-          <option>Voter’s Card</option>
-          <option>Driver’s License</option>
-        </select>
-        <input required name="id_number" placeholder="Identification Number" class="input mt-3">
       </section>
 
       <!-- COMPANY INFO -->
       <section class="mb-8">
-        <h2 class="text-xl font-semibold mb-4">Company Information</h2>
+        <h2 class="text-xl font-semibold mb-4 text-blue-900">Company Information</h2>
         <textarea required name="company_address" placeholder="Company Address" class="input mt-3"></textarea>
-        <input required name="company_phone" placeholder="Official Phone Number" class="input mt-3">
+        <input required type="tel" pattern="\d*" name="company_phone" placeholder="Official Phone Number" class="input mt-3">
         <input required type="email" name="company_email" placeholder="Company Email" class="input mt-3">
         <textarea required name="business_description" placeholder="Full Description of Nature of Business" class="input mt-3"></textarea>
-      </section>
-
-      <!-- UPLOADS -->
-      <section class="mb-8">
-        <h2 class="text-xl font-semibold mb-4">Uploads</h2>
-        <button type="button" onclick="uploadID()" class="upload-btn">Upload Means of Identification</button>
-        <input type="hidden" name="id_url" id="id_url">
-        <button type="button" onclick="uploadSignature()" class="upload-btn mt-3">Upload Signature</button>
-        <input type="hidden" name="signature_url" id="signature_url">
-        <button type="button" onclick="uploadPassport()" class="upload-btn mt-3">Upload Passport Photograph</button>
-        <input type="hidden" name="passport_url" id="passport_url">
       </section>
 
       <!-- DECLARATION -->
@@ -103,81 +125,71 @@
         <p class="text-sm">I confirm that all information provided is accurate.</p>
       </div>
 
-      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold">
-        Submit CAC Form
-      </button>
+      <button type="submit" class="w-full btn-primary py-3 rounded-xl font-semibold">Submit CAC Form</button>
 
     </form>
   </div>
 </div>
 
-<style>
-  .input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; outline: none; }
-  .input:focus { border-color: #2563eb; }
-  .upload-btn { width: 100%; padding: 12px; border-radius: 10px; background: #f1f5f9; border: 1px dashed #94a3b8; font-weight: 500; }
-</style>
-
 <script>
-  // CLOUDINARY
-  const cloudinaryConfig = { cloudName: "YOUR_CLOUD_NAME", uploadPreset: "YOUR_UPLOAD_PRESET" };
-  function uploadID(){cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{if(!e&&r.event==="success"){document.getElementById("id_url").value=r.info.secure_url;alert("ID uploaded successfully");}});}
-  function uploadSignature(){cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{if(!e&&r.event==="success"){document.getElementById("signature_url").value=r.info.secure_url;alert("Signature uploaded successfully");}});}
-  function uploadPassport(){cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{if(!e&&r.event==="success"){document.getElementById("passport_url").value=r.info.secure_url;alert("Passport uploaded successfully");}});}
+// Cloudinary
+const cloudinaryConfig = { cloudName: "YOUR_CLOUD_NAME", uploadPreset: "YOUR_UPLOAD_PRESET" };
+function uploadID(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e&&r.event==="success"){ document.getElementById(person==='secretary'?"secretary_id_url":"director_id_url_"+person).value=r.info.secure_url; alert("ID uploaded successfully for "+person); } }); }
+function uploadSignature(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e&&r.event==="success"){ document.getElementById(person==='secretary'?"secretary_signature_url":"director_signature_url_"+person).value=r.info.secure_url; alert("Signature uploaded successfully for "+person); } }); }
+function uploadPassport(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e&&r.event==="success"){ document.getElementById(person==='secretary'?"secretary_passport_url":"director_passport_url_"+person).value=r.info.secure_url; alert("Passport uploaded successfully for "+person); } }); }
 
-  // DYNAMIC DIRECTORS & SECRETARIES
-  let directorCount=1, secretaryCount=1;
-  function addDirector(){
-    directorCount++;
-    const container=document.getElementById("directors-container");
-    const div=document.createElement("div");
-    div.className="director-section mb-4 border p-4 rounded";
-    div.innerHTML=`<input required name="director_name_${directorCount}" placeholder="Director Full Name" class="input mb-2">
-                     <input required type="email" name="director_email_${directorCount}" placeholder="Email" class="input mb-2">
-                     <input required name="director_phone_${directorCount}" placeholder="Phone Number" class="input mb-2">`;
-    container.appendChild(div);
+// Directors dynamic
+let directorCount=1;
+function addDirector(){
+  directorCount++;
+  const container=document.getElementById("directors-container");
+  const div=document.createElement("div");
+  div.className="director-section mb-4 border p-4 rounded";
+  div.innerHTML=`
+    <h3 class="font-semibold mb-2">Director ${directorCount}</h3>
+    <input required name="director_first_name_${directorCount}" placeholder="First Name" class="input mb-2">
+    <input required name="director_surname_${directorCount}" placeholder="Surname" class="input mb-2">
+    <input required name="director_middle_name_${directorCount}" placeholder="Middle Name" class="input mb-2">
+    <input required type="date" name="director_dob_${directorCount}" class="input mb-2">
+    <input required type="email" name="director_email_${directorCount}" placeholder="Email" class="input mb-2">
+    <input required type="tel" pattern="\\d*" name="director_phone_${directorCount}" placeholder="Phone Number" class="input mb-2">
+    <select required name="director_id_type_${directorCount}" class="input mb-2">
+      <option value="">Select Means of ID</option>
+      <option>NIN</option>
+      <option>International Passport</option>
+      <option>Voter’s Card</option>
+      <option>Driver’s License</option>
+    </select>
+    <input required type="tel" pattern="\\d*" name="director_id_number_${directorCount}" placeholder="ID Number" class="input mb-2">
+    <input required type="tel" pattern="\\d*" name="director_shares_${directorCount}" placeholder="Shares Allotted" class="input mb-2">
+    <button type="button" onclick="uploadID('${directorCount}')" class="upload-btn mb-2">Upload ID</button>
+    <input type="hidden" name="director_id_url_${directorCount}" id="director_id_url_${directorCount}">
+    <button type="button" onclick="uploadSignature('${directorCount}')" class="upload-btn mb-2">Upload Signature</button>
+    <input type="hidden" name="director_signature_url_${directorCount}" id="director_signature_url_${directorCount}">
+    <button type="button" onclick="uploadPassport('${directorCount}')" class="upload-btn mb-2">Upload Passport</button>
+    <input type="hidden" name="director_passport_url_${directorCount}" id="director_passport_url_${directorCount}">
+  `;
+  container.appendChild(div);
+}
+
+// Form submit + PDF
+const sheetURL="YOUR_GOOGLE_SCRIPT_WEBAPP_URL";
+document.getElementById("cacForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const formData={};
+  document.querySelectorAll("#cacForm [name]").forEach(input=>formData[input.name]=input.value);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p','mm','a4');
+  doc.setFontSize(18); doc.text("Nextcom CAC Registration Form",105,20,{align:"center"});
+  let y=35;
+  for(const key in formData){
+    doc.setFontSize(12);
+    doc.text(`${key.replace(/([A-Z])/g,' $1')}: ${formData[key]}`,20,y);
+    y+=10; if(y>270){doc.addPage();y=20;}
   }
-  function addSecretary(){
-    secretaryCount++;
-    const container=document.getElementById("secretaries-container");
-    const div=document.createElement("div");
-    div.className="secretary-section mb-4 border p-4 rounded";
-    div.innerHTML=`<input name="secretary_name_${secretaryCount}" placeholder="Secretary Full Name" class="input mb-2">
-                     <input type="email" name="secretary_email_${secretaryCount}" placeholder="Email" class="input mb-2">
-                     <input name="secretary_phone_${secretaryCount}" placeholder="Phone Number" class="input mb-2">`;
-    container.appendChild(div);
-  }
-
-  // GOOGLE SHEETS + PDF
-  const sheetURL="YOUR_GOOGLE_SCRIPT_WEBAPP_URL";
-  document.getElementById("cacForm").addEventListener("submit",async e=>{
-    e.preventDefault();
-    const formData={};
-    document.querySelectorAll("#cacForm [name]").forEach(input=>formData[input.name]=input.value);
-
-    // PDF
-    const {jsPDF}=window.jspdf;
-    const doc=new jsPDF('p','mm','a4');
-    doc.setFontSize(18); doc.text("CORPORATE AFFAIRS COMMISSION",105,20,{align:"center"});
-    doc.setFontSize(14); doc.text("Company Registration Form",105,28,{align:"center"});
-    let y=40;
-    for(const key in formData){
-      doc.rect(20,y-6,170,8);
-      doc.text(`${key.replace(/([A-Z])/g,' $1')}: ${formData[key]}`,22,y);
-      y+=12; if(y>270){ doc.addPage(); y=20; }
-    }
-    doc.rect(20,y+5,80,20); doc.text("Applicant Signature",22,y+15);
-    doc.rect(110,y+5,80,20); doc.text("Date",112,y+15);
-    doc.save(`${formData.first_name}_${formData.surname}_CAC_Form.pdf`);
-
-    // SEND TO SHEETS
-    try{
-      const res=await fetch(sheetURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(formData)});
-      await res.json();
-      alert("Form submitted successfully!");
-      document.getElementById("cacForm").reset();
-    }catch(err){console.error(err);alert("Submission failed");}
-  });
+  doc.save(`${formData.company_name_1||"Nextcom"}_Form.pdf`);
+  try{await fetch(sheetURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(formData)});alert("Form submitted successfully!");document.getElementById("cacForm").reset();}catch(err){console.error(err);alert("Submission failed");}
+});
 </script>
-
 </body>
 </html>
