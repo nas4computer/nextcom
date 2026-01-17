@@ -4,161 +4,179 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CAC Registration Form</title>
-
-<!-- jsPDF for PDF generation -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-slate-100">
+
+<div class="max-w-5xl mx-auto px-4 py-10">
+  <div class="bg-white rounded-2xl shadow-xl p-6 md:p-10">
+
+    <h1 class="text-3xl font-bold text-center mb-8">CAC Registration Form</h1>
+
+    <form id="cacForm">
+
+      <!-- COMPANY NAME -->
+      <section class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Proposed Company Names</h2>
+        <input required name="company_name_1" placeholder="Proposed Company Name 1" class="input mb-3">
+        <input name="company_name_2" placeholder="Proposed Company Name 2" class="input">
+      </section>
+
+      <!-- PERSONAL INFO -->
+      <section class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Personal Information</h2>
+        <div class="grid md:grid-cols-2 gap-4">
+          <input required name="first_name" placeholder="First Name" class="input">
+          <input required name="surname" placeholder="Surname" class="input">
+          <input name="middle_name" placeholder="Middle Name" class="input">
+          <input required type="date" name="dob" class="input">
+          <input required type="email" name="email" placeholder="Email" class="input">
+          <input required name="phone" placeholder="Phone Number" class="input">
+        </div>
+        <textarea required name="address" placeholder="Full Residential Address" class="input mt-4"></textarea>
+      </section>
+
+      <!-- DIRECTORS -->
+      <section class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Directors</h2>
+        <div id="directors-container">
+          <div class="director-section mb-4 border p-4 rounded">
+            <input required name="director_name_1" placeholder="Director Full Name" class="input mb-2">
+            <input required type="email" name="director_email_1" placeholder="Email" class="input mb-2">
+            <input required name="director_phone_1" placeholder="Phone Number" class="input mb-2">
+          </div>
+        </div>
+        <button type="button" onclick="addDirector()" class="mb-4 bg-green-600 text-white px-4 py-2 rounded">Add Director</button>
+      </section>
+
+      <!-- SECRETARIES -->
+      <section class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Secretaries</h2>
+        <div id="secretaries-container">
+          <div class="secretary-section mb-4 border p-4 rounded">
+            <input name="secretary_name_1" placeholder="Secretary Full Name" class="input mb-2">
+            <input type="email" name="secretary_email_1" placeholder="Email" class="input mb-2">
+            <input name="secretary_phone_1" placeholder="Phone Number" class="input mb-2">
+          </div>
+        </div>
+        <button type="button" onclick="addSecretary()" class="mb-4 bg-green-600 text-white px-4 py-2 rounded">Add Secretary</button>
+      </section>
+
+      <!-- IDENTIFICATION -->
+      <section class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Identification</h2>
+        <select required name="id_type" class="input">
+          <option value="">Select Means of Identification</option>
+          <option>NIN</option>
+          <option>International Passport</option>
+          <option>Voter’s Card</option>
+          <option>Driver’s License</option>
+        </select>
+        <input required name="id_number" placeholder="Identification Number" class="input mt-3">
+      </section>
+
+      <!-- COMPANY INFO -->
+      <section class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Company Information</h2>
+        <textarea required name="company_address" placeholder="Company Address" class="input mt-3"></textarea>
+        <input required name="company_phone" placeholder="Official Phone Number" class="input mt-3">
+        <input required type="email" name="company_email" placeholder="Company Email" class="input mt-3">
+        <textarea required name="business_description" placeholder="Full Description of Nature of Business" class="input mt-3"></textarea>
+      </section>
+
+      <!-- UPLOADS -->
+      <section class="mb-8">
+        <h2 class="text-xl font-semibold mb-4">Uploads</h2>
+        <button type="button" onclick="uploadID()" class="upload-btn">Upload Means of Identification</button>
+        <input type="hidden" name="id_url" id="id_url">
+        <button type="button" onclick="uploadSignature()" class="upload-btn mt-3">Upload Signature</button>
+        <input type="hidden" name="signature_url" id="signature_url">
+        <button type="button" onclick="uploadPassport()" class="upload-btn mt-3">Upload Passport Photograph</button>
+        <input type="hidden" name="passport_url" id="passport_url">
+      </section>
+
+      <!-- DECLARATION -->
+      <div class="flex items-center mb-6">
+        <input required type="checkbox" class="mr-2">
+        <p class="text-sm">I confirm that all information provided is accurate.</p>
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold">
+        Submit CAC Form
+      </button>
+
+    </form>
+  </div>
+</div>
 
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
-  h1, h2 { text-align: center; }
-  form { max-width: 700px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
-  label { display: block; margin-top: 12px; font-weight: bold; }
-  input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border-radius: 4px; border: 1px solid #ccc; }
-  button { margin-top: 20px; padding: 12px 20px; border: none; border-radius: 4px; background: #007BFF; color: #fff; cursor: pointer; font-size: 16px; }
-  button:hover { background: #0056b3; }
+  .input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; outline: none; }
+  .input:focus { border-color: #2563eb; }
+  .upload-btn { width: 100%; padding: 12px; border-radius: 10px; background: #f1f5f9; border: 1px dashed #94a3b8; font-weight: 500; }
 </style>
-</head>
-<body>
-
-<h1>CAC Registration Form</h1>
-
-<form id="cacForm">
-
-  <!-- Company Details -->
-  <h2>Company Details</h2>
-  <label>Proposed Company Name</label>
-  <input type="text" id="companyName" required>
-
-  <label>Company Type</label>
-  <select id="companyType" required>
-    <option value="">-- Select --</option>
-    <option value="Private Limited">Private Limited</option>
-    <option value="Public Limited">Public Limited</option>
-    <option value="Sole Proprietorship">Sole Proprietorship</option>
-    <option value="Incorporated Trustee">Incorporated Trustee</option>
-  </select>
-
-  <label>RC Number (if existing)</label>
-  <input type="text" id="rcNumber">
-
-  <label>Registered Office Address</label>
-  <textarea id="address" required></textarea>
-
-  <label>Nature of Business / Objects</label>
-  <textarea id="businessNature" required></textarea>
-
-  <label>Authorized Share Capital (if applicable)</label>
-  <input type="text" id="shareCapital">
-
-  <!-- Director / Proprietor -->
-  <h2>Director / Proprietor</h2>
-  <label>Full Name</label>
-  <input type="text" id="directorName" required>
-
-  <label>Email Address</label>
-  <input type="email" id="directorEmail" required>
-
-  <label>Phone Number</label>
-  <input type="tel" id="directorPhone" required>
-
-  <label>Nationality</label>
-  <input type="text" id="directorNationality" required>
-
-  <label>Occupation</label>
-  <input type="text" id="directorOccupation" required>
-
-  <!-- Company Secretary (Optional) -->
-  <h2>Company Secretary (Optional)</h2>
-  <label>Full Name</label>
-  <input type="text" id="secretaryName">
-
-  <label>Email</label>
-  <input type="email" id="secretaryEmail">
-
-  <label>Phone</label>
-  <input type="tel" id="secretaryPhone">
-
-  <!-- Applicant -->
-  <h2>Applicant</h2>
-  <label>Name</label>
-  <input type="text" id="applicantName" required>
-
-  <button type="submit">Submit Registration</button>
-</form>
 
 <script>
-document.getElementById('cacForm').addEventListener('submit', async function(e){
-  e.preventDefault();
+  // CLOUDINARY
+  const cloudinaryConfig = { cloudName: "YOUR_CLOUD_NAME", uploadPreset: "YOUR_UPLOAD_PRESET" };
+  function uploadID(){cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{if(!e&&r.event==="success"){document.getElementById("id_url").value=r.info.secure_url;alert("ID uploaded successfully");}});}
+  function uploadSignature(){cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{if(!e&&r.event==="success"){document.getElementById("signature_url").value=r.info.secure_url;alert("Signature uploaded successfully");}});}
+  function uploadPassport(){cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{if(!e&&r.event==="success"){document.getElementById("passport_url").value=r.info.secure_url;alert("Passport uploaded successfully");}});}
 
-  const data = {
-    companyName: document.getElementById('companyName').value,
-    companyType: document.getElementById('companyType').value,
-    rcNumber: document.getElementById('rcNumber').value,
-    address: document.getElementById('address').value,
-    businessNature: document.getElementById('businessNature').value,
-    shareCapital: document.getElementById('shareCapital').value,
-    directorName: document.getElementById('directorName').value,
-    directorEmail: document.getElementById('directorEmail').value,
-    directorPhone: document.getElementById('directorPhone').value,
-    directorNationality: document.getElementById('directorNationality').value,
-    directorOccupation: document.getElementById('directorOccupation').value,
-    secretaryName: document.getElementById('secretaryName').value,
-    secretaryEmail: document.getElementById('secretaryEmail').value,
-    secretaryPhone: document.getElementById('secretaryPhone').value,
-    applicantName: document.getElementById('applicantName').value
-  };
-
-  // --- PDF Generation ---
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF('p', 'mm', 'a4');
-
-  // Header
-  doc.setFontSize(18);
-  doc.setFont("helvetica", "bold");
-  doc.text("CORPORATE AFFAIRS COMMISSION", 105, 20, { align: "center" });
-  doc.setFontSize(14);
-  doc.text("Company Registration Form", 105, 28, { align: "center" });
-
-  // Logo (Optional: must be uploaded in same folder)
-  const logo = new Image();
-  logo.src = "logo.png";
-  logo.onload = function() {
-    doc.addImage(logo, "PNG", 20, 10, 30, 15);
-
-    // Draw boxes for each field
-    let y = 40;
-    doc.setFontSize(12);
-    for (const key in data) {
-      doc.rect(20, y - 6, 170, 8); // box
-      doc.text(`${key.replace(/([A-Z])/g, ' $1')}: ${data[key]}`, 22, y);
-      y += 12;
-      if (y > 270) { doc.addPage(); y = 20; } // new page if too long
-    }
-
-    // Signature boxes
-    doc.rect(20, y + 5, 80, 20);
-    doc.text("Applicant Signature", 22, y + 15);
-
-    doc.rect(110, y + 5, 80, 20);
-    doc.text("Date", 112, y + 15);
-
-    // Save PDF
-    doc.save(`${data.companyName.replace(/\s+/g,'_')}_CAC_Form.pdf`);
-  };
-
-  // --- Send to Google Sheets backend ---
-  try {
-    const res = await fetch("https://script.google.com/macros/s/AKfycbxXf8kFb9A4jcK_OZvMlC_mV07HFdxL30b7UlxAMlQ/dev", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-    const result = await res.json();
-    console.log("Data saved:", result);
-  } catch(err) {
-    console.error("Submission failed:", err);
+  // DYNAMIC DIRECTORS & SECRETARIES
+  let directorCount=1, secretaryCount=1;
+  function addDirector(){
+    directorCount++;
+    const container=document.getElementById("directors-container");
+    const div=document.createElement("div");
+    div.className="director-section mb-4 border p-4 rounded";
+    div.innerHTML=`<input required name="director_name_${directorCount}" placeholder="Director Full Name" class="input mb-2">
+                     <input required type="email" name="director_email_${directorCount}" placeholder="Email" class="input mb-2">
+                     <input required name="director_phone_${directorCount}" placeholder="Phone Number" class="input mb-2">`;
+    container.appendChild(div);
   }
-});
+  function addSecretary(){
+    secretaryCount++;
+    const container=document.getElementById("secretaries-container");
+    const div=document.createElement("div");
+    div.className="secretary-section mb-4 border p-4 rounded";
+    div.innerHTML=`<input name="secretary_name_${secretaryCount}" placeholder="Secretary Full Name" class="input mb-2">
+                     <input type="email" name="secretary_email_${secretaryCount}" placeholder="Email" class="input mb-2">
+                     <input name="secretary_phone_${secretaryCount}" placeholder="Phone Number" class="input mb-2">`;
+    container.appendChild(div);
+  }
+
+  // GOOGLE SHEETS + PDF
+  const sheetURL="YOUR_GOOGLE_SCRIPT_WEBAPP_URL";
+  document.getElementById("cacForm").addEventListener("submit",async e=>{
+    e.preventDefault();
+    const formData={};
+    document.querySelectorAll("#cacForm [name]").forEach(input=>formData[input.name]=input.value);
+
+    // PDF
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF('p','mm','a4');
+    doc.setFontSize(18); doc.text("CORPORATE AFFAIRS COMMISSION",105,20,{align:"center"});
+    doc.setFontSize(14); doc.text("Company Registration Form",105,28,{align:"center"});
+    let y=40;
+    for(const key in formData){
+      doc.rect(20,y-6,170,8);
+      doc.text(`${key.replace(/([A-Z])/g,' $1')}: ${formData[key]}`,22,y);
+      y+=12; if(y>270){ doc.addPage(); y=20; }
+    }
+    doc.rect(20,y+5,80,20); doc.text("Applicant Signature",22,y+15);
+    doc.rect(110,y+5,80,20); doc.text("Date",112,y+15);
+    doc.save(`${formData.first_name}_${formData.surname}_CAC_Form.pdf`);
+
+    // SEND TO SHEETS
+    try{
+      const res=await fetch(sheetURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(formData)});
+      await res.json();
+      alert("Form submitted successfully!");
+      document.getElementById("cacForm").reset();
+    }catch(err){console.error(err);alert("Submission failed");}
+  });
 </script>
 
 </body>
