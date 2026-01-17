@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAC Registration Form</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
+  h1 { text-align: center; }
+  form { max-width: 700px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
+  label { display: block; margin-top: 12px; }
+  input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border-radius: 4px; border: 1px solid #ccc; }
+  button { margin-top: 20px; padding: 10px 20px; border: none; border-radius: 4px; background: #007BFF; color: #fff; cursor: pointer; }
+  button:hover { background: #0056b3; }
+</style>
+</head>
+<body>
+
+<h1>CAC Registration Form</h1>
+
+<form id="cacForm">
+
+  <!-- Company Details -->
+  <h2>Company Details</h2>
+  <label>Proposed Company Name</label>
+  <input type="text" id="companyName" required>
+
+  <label>Company Type</label>
+  <select id="companyType" required>
+    <option value="">-- Select --</option>
+    <option value="Private Limited">Private Limited</option>
+    <option value="Public Limited">Public Limited</option>
+    <option value="Sole Proprietorship">Sole Proprietorship</option>
+    <option value="Incorporated Trustee">Incorporated Trustee</option>
+  </select>
+
+  <label>RC Number (if existing)</label>
+  <input type="text" id="rcNumber">
+
+  <label>Registered Office Address</label>
+  <textarea id="address" required></textarea>
+
+  <label>Nature of Business / Objects</label>
+  <textarea id="businessNature" required></textarea>
+
+  <label>Authorized Share Capital (if applicable)</label>
+  <input type="text" id="shareCapital">
+
+  <!-- Director / Proprietor -->
+  <h2>Director / Proprietor</h2>
+  <label>Full Name</label>
+  <input type="text" id="directorName" required>
+
+  <label>Email Address</label>
+  <input type="email" id="directorEmail" required>
+
+  <label>Phone Number</label>
+  <input type="tel" id="directorPhone" required>
+
+  <label>Nationality</label>
+  <input type="text" id="directorNationality" required>
+
+  <label>Occupation</label>
+  <input type="text" id="directorOccupation" required>
+
+  <!-- Optional: Company Secretary -->
+  <h2>Company Secretary (Optional)</h2>
+  <label>Full Name</label>
+  <input type="text" id="secretaryName">
+
+  <label>Email</label>
+  <input type="email" id="secretaryEmail">
+
+  <label>Phone</label>
+  <input type="tel" id="secretaryPhone">
+
+  <!-- Applicant Signature -->
+  <h2>Applicant</h2>
+  <label>Name</label>
+  <input type="text" id="applicantName" required>
+
+  <button type="submit">Submit Registration</button>
+</form>
+
+<script>
+document.getElementById('cacForm').addEventListener('submit', function(e){
+  e.preventDefault();
+
+  const data = {
+    companyName: document.getElementById('companyName').value,
+    companyType: document.getElementById('companyType').value,
+    rcNumber: document.getElementById('rcNumber').value,
+    address: document.getElementById('address').value,
+    businessNature: document.getElementById('businessNature').value,
+    shareCapital: document.getElementById('shareCapital').value,
+    directorName: document.getElementById('directorName').value,
+    directorEmail: document.getElementById('directorEmail').value,
+    directorPhone: document.getElementById('directorPhone').value,
+    directorNationality: document.getElementById('directorNationality').value,
+    directorOccupation: document.getElementById('directorOccupation').value,
+    secretaryName: document.getElementById('secretaryName').value,
+    secretaryEmail: document.getElementById('secretaryEmail').value,
+    secretaryPhone: document.getElementById('secretaryPhone').value,
+    applicantName: document.getElementById('applicantName').value
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbxXf8kFb9A4jcK_OZvMlC_mV07HFdxL30b7UlxAMlQ/dev", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(res => alert("Form submitted successfully!"))
+  .catch(err => alert("Submission failed: " + err));
+});
+</script>
+
+</body>
+</html>
