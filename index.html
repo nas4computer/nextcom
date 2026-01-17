@@ -89,11 +89,11 @@
             <input required type="tel" pattern="\d*" name="director_id_number_1" placeholder="ID Number" class="input mb-2">
             <label class="required">Shares Allotted</label>
             <input required type="tel" pattern="\d*" name="director_shares_1" placeholder="Shares" class="input mb-2">
-            <button type="button" onclick="uploadID('1')" class="upload-btn mb-2">Upload ID</button>
+            <button type="button" onclick="uploadIDDirector(1)" class="upload-btn mb-2">Upload ID</button>
             <input type="hidden" name="director_id_url_1" id="director_id_url_1">
-            <button type="button" onclick="uploadSignature('1')" class="upload-btn mb-2">Upload Signature</button>
+            <button type="button" onclick="uploadSignatureDirector(1)" class="upload-btn mb-2">Upload Signature</button>
             <input type="hidden" name="director_signature_url_1" id="director_signature_url_1">
-            <button type="button" onclick="uploadPassport('1')" class="upload-btn mb-2">Upload Passport</button>
+            <button type="button" onclick="uploadPassportDirector(1)" class="upload-btn mb-2">Upload Passport</button>
             <input type="hidden" name="director_passport_url_1" id="director_passport_url_1">
           </div>
         </div>
@@ -125,11 +125,11 @@
         </select>
         <label class="required">ID Number</label>
         <input required type="tel" pattern="\d*" name="secretary_id_number" class="input mb-2">
-        <button type="button" onclick="uploadID('secretary')" class="upload-btn mb-2">Upload ID</button>
+        <button type="button" onclick="uploadIDSecret()" class="upload-btn mb-2">Upload ID</button>
         <input type="hidden" name="secretary_id_url" id="secretary_id_url">
-        <button type="button" onclick="uploadSignature('secretary')" class="upload-btn mb-2">Upload Signature</button>
+        <button type="button" onclick="uploadSignatureSecret()" class="upload-btn mb-2">Upload Signature</button>
         <input type="hidden" name="secretary_signature_url" id="secretary_signature_url">
-        <button type="button" onclick="uploadPassport('secretary')" class="upload-btn mb-2">Upload Passport</button>
+        <button type="button" onclick="uploadPassportSecret()" class="upload-btn mb-2">Upload Passport</button>
         <input type="hidden" name="secretary_passport_url" id="secretary_passport_url">
       </section>
 
@@ -139,11 +139,26 @@
 </div>
 
 <script>
-const cloudinaryConfig = { cloudName: "YOUR_CLOUD_NAME", uploadPreset: "YOUR_UPLOAD_PRESET" };
-function uploadID(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e&&r.event==="success"){ document.getElementById(person==='secretary'?"secretary_id_url":"director_id_url_"+person).value=r.info.secure_url; alert("ID uploaded for "+person); } }); }
-function uploadSignature(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e&&r.event==="success"){ document.getElementById(person==='secretary'?"secretary_signature_url":"director_signature_url_"+person).value=r.info.secure_url; alert("Signature uploaded for "+person); } }); }
-function uploadPassport(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e&&r.event==="success"){ document.getElementById(person==='secretary'?"secretary_passport_url":"director_passport_url_"+person).value=r.info.secure_url; alert("Passport uploaded for "+person); } }); }
+const cloudinaryConfig = { cloudName:"YOUR_CLOUD_NAME", uploadPreset:"YOUR_UPLOAD_PRESET" };
 
+// Upload Functions
+function openUpload(fieldId){
+  cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{
+    if(!e && r.event==="success"){ document.getElementById(fieldId).value=r.info.secure_url; alert("File uploaded!"); }
+  });
+}
+
+// Secretary Uploads
+function uploadIDSecret(){ openUpload("secretary_id_url"); }
+function uploadSignatureSecret(){ openUpload("secretary_signature_url"); }
+function uploadPassportSecret(){ openUpload("secretary_passport_url"); }
+
+// Director Uploads
+function uploadIDDirector(num){ openUpload("director_id_url_"+num); }
+function uploadSignatureDirector(num){ openUpload("director_signature_url_"+num); }
+function uploadPassportDirector(num){ openUpload("director_passport_url_"+num); }
+
+// Directors Dynamic
 let directorCount=1;
 function addDirector(){
   directorCount++;
@@ -176,27 +191,27 @@ function addDirector(){
     <input required type="tel" pattern="\\d*" name="director_id_number_${directorCount}" placeholder="ID Number" class="input mb-2">
     <label class="required">Shares Allotted</label>
     <input required type="tel" pattern="\\d*" name="director_shares_${directorCount}" placeholder="Shares" class="input mb-2">
-    <button type="button" onclick="uploadID('${directorCount}')" class="upload-btn mb-2">Upload ID</button>
+    <button type="button" onclick="uploadIDDirector(${directorCount})" class="upload-btn mb-2">Upload ID</button>
     <input type="hidden" name="director_id_url_${directorCount}" id="director_id_url_${directorCount}">
-    <button type="button" onclick="uploadSignature('${directorCount}')" class="upload-btn mb-2">Upload Signature</button>
+    <button type="button" onclick="uploadSignatureDirector(${directorCount})" class="upload-btn mb-2">Upload Signature</button>
     <input type="hidden" name="director_signature_url_${directorCount}" id="director_signature_url_${directorCount}">
-    <button type="button" onclick="uploadPassport('${directorCount}')" class="upload-btn mb-2">Upload Passport</button>
+    <button type="button" onclick="uploadPassportDirector(${directorCount})" class="upload-btn mb-2">Upload Passport</button>
     <input type="hidden" name="director_passport_url_${directorCount}" id="director_passport_url_${directorCount}">
   `;
   container.appendChild(div);
 }
 
+// Form submission
 document.getElementById("cacForm").addEventListener("submit", async function(e){
   e.preventDefault();
   const data={};
-  document.querySelectorAll("#cacForm [name]").forEach(input=>data[input.name]=input.value);
-
+  document.querySelectorAll("#cacForm [name]").forEach(i=>data[i.name]=i.value);
   const sheetURL="https://script.google.com/macros/s/AKfycby8TF4lpFKJ6t_ds6ciH9s2R5lR-bnT196sYPhJm0kN8XndPYpAimGi80WniBWlFWmj/exec"; // Replace with your Web App URL
   try{
     const res=await fetch(sheetURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
-    const result=await res.json(); console.log("Submission response:",result);
+    const result=await res.json(); console.log(result);
 
-    const { jsPDF } = window.jspdf;
+    const { jsPDF }=window.jspdf;
     const doc=new jsPDF('p','mm','a4');
     doc.setFontSize(18); doc.text("Nextcom CAC Registration Form",105,20,{align:"center"});
     let y=35;
@@ -205,7 +220,7 @@ document.getElementById("cacForm").addEventListener("submit", async function(e){
 
     alert("Form submitted successfully!");
     this.reset();
-  }catch(err){console.error("Submission failed:",err); alert("Submission failed, check console.");}
+  }catch(err){console.error(err); alert("Submission failed, check console.");}
 });
 </script>
 </body>
