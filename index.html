@@ -132,20 +132,20 @@ body { background-color: #f1f5f9; }
 </div>
 
 <script>
-// Cloudinary
+// Cloudinary config
 const cloudinaryConfig = { cloudName: "YOUR_CLOUD_NAME", uploadPreset: "YOUR_UPLOAD_PRESET" };
 function uploadID(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e&&r.event==="success"){ document.getElementById(person==='secretary'?"secretary_id_url":"director_id_url_"+person).value=r.info.secure_url; alert("ID uploaded successfully for "+person); } }); }
 function uploadSignature(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e&&r.event==="success"){ document.getElementById(person==='secretary'?"secretary_signature_url":"director_signature_url_"+person).value=r.info.secure_url; alert("Signature uploaded successfully for "+person); } }); }
 function uploadPassport(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e&&r.event==="success"){ document.getElementById(person==='secretary'?"secretary_passport_url":"director_passport_url_"+person).value=r.info.secure_url; alert("Passport uploaded successfully for "+person); } }); }
 
-// Directors dynamic
-let directorCount=1;
-function addDirector(){
+// Dynamic directors
+let directorCount = 1;
+function addDirector() {
   directorCount++;
-  const container=document.getElementById("directors-container");
-  const div=document.createElement("div");
-  div.className="director-section mb-4 border p-4 rounded";
-  div.innerHTML=`
+  const container = document.getElementById("directors-container");
+  const div = document.createElement("div");
+  div.className = "director-section mb-4 border p-4 rounded";
+  div.innerHTML = `
     <h3 class="font-semibold mb-2">Director ${directorCount}</h3>
     <input required name="director_first_name_${directorCount}" placeholder="First Name" class="input mb-2">
     <input required name="director_surname_${directorCount}" placeholder="Surname" class="input mb-2">
@@ -172,25 +172,44 @@ function addDirector(){
   container.appendChild(div);
 }
 
-// Form submit + PDF
-const sheetURL="https://script.google.com/macros/s/AKfycby8TF4lpFKJ6t_ds6ciH9s2R5lR-bnT196sYPhJm0kN8XndPYpAimGi80WniBWlFWmj/exec";
-document.getElementById("cacForm").addEventListener("submit", async e=>{
+// Form submission
+document.getElementById("cacForm").addEventListener("submit", async function(e){
   e.preventDefault();
-  const formData={};
-  document.querySelectorAll("#cacForm [name]").forEach(input=>formData[input.name]=input.value);
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF('p','mm','a4');
-  doc.setFontSize(18); doc.text("Nextcom CAC Registration Form",105,20,{align:"center"});
-  let y=35;
-  for(const key in formData){
-    doc.setFontSize(12);
-    doc.text(`${key.replace(/([A-Z])/g,' $1')}: ${formData[key]}`,20,y);
-    y+=10; if(y>270){doc.addPage();y=20;}
+  const data = {};
+  document.querySelectorAll("#cacForm [name]").forEach(input => data[input.name] = input.value);
+
+  // Send to Google Sheets
+  const sheetURL = "https://script.google.com/macros/s/AKfycby8TF4lpFKJ6t_ds6ciH9s2R5lR-bnT196sYPhJm0kN8XndPYpAimGi80WniBWlFWmj/exec"; // Replace with your deployed Web App URL
+  try {
+    const response = await fetch(sheetURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    console.log("Submission response:", result);
+
+    // PDF generation
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p','mm','a4');
+    doc.setFontSize(18); doc.text("Nextcom CAC Registration Form",105,20,{align:"center"});
+    let y=35;
+    for(const key in data){
+      doc.setFontSize(12);
+      doc.text(`${key}: ${data[key]}`,20,y);
+      y+=10; if(y>270){doc.addPage(); y=20;}
+    }
+    doc.save(`${data.company_name_1||"Nextcom"}_Form.pdf`);
+
+    alert("Form submitted successfully!");
+    this.reset();
+  } catch(err){
+    console.error("Submission failed:", err);
+    alert("Form submission failed, check console.");
   }
-  doc.save(`${formData.company_name_1||"Nextcom"}_Form.pdf`);
-  try{await fetch(sheetURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(formData)});alert("Form submitted successfully!");document.getElementById("cacForm").reset();}catch(err){console.error(err);alert("Submission failed");}
 });
 </script>
 </body>
 </html>
+
 
