@@ -4,13 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CAC Registration Form</title>
+
+<!-- jsPDF for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
   body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
-  h1 { text-align: center; }
+  h1, h2 { text-align: center; }
   form { max-width: 700px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
-  label { display: block; margin-top: 12px; }
+  label { display: block; margin-top: 12px; font-weight: bold; }
   input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; border-radius: 4px; border: 1px solid #ccc; }
-  button { margin-top: 20px; padding: 10px 20px; border: none; border-radius: 4px; background: #007BFF; color: #fff; cursor: pointer; }
+  button { margin-top: 20px; padding: 12px 20px; border: none; border-radius: 4px; background: #007BFF; color: #fff; cursor: pointer; font-size: 16px; }
   button:hover { background: #0056b3; }
 </style>
 </head>
@@ -63,7 +67,7 @@
   <label>Occupation</label>
   <input type="text" id="directorOccupation" required>
 
-  <!-- Optional: Company Secretary -->
+  <!-- Company Secretary (Optional) -->
   <h2>Company Secretary (Optional)</h2>
   <label>Full Name</label>
   <input type="text" id="secretaryName">
@@ -74,7 +78,7 @@
   <label>Phone</label>
   <input type="tel" id="secretaryPhone">
 
-  <!-- Applicant Signature -->
+  <!-- Applicant -->
   <h2>Applicant</h2>
   <label>Name</label>
   <input type="text" id="applicantName" required>
@@ -83,7 +87,7 @@
 </form>
 
 <script>
-document.getElementById('cacForm').addEventListener('submit', function(e){
+document.getElementById('cacForm').addEventListener('submit', async function(e){
   e.preventDefault();
 
   const data = {
@@ -104,14 +108,56 @@ document.getElementById('cacForm').addEventListener('submit', function(e){
     applicantName: document.getElementById('applicantName').value
   };
 
-  fetch("https://script.google.com/macros/s/AKfycbxXf8kFb9A4jcK_OZvMlC_mV07HFdxL30b7UlxAMlQ/dev", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  })
-  .then(res => res.json())
-  .then(res => alert("Form submitted successfully!"))
-  .catch(err => alert("Submission failed: " + err));
+  // --- PDF Generation ---
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p', 'mm', 'a4');
+
+  // Header
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text("CORPORATE AFFAIRS COMMISSION", 105, 20, { align: "center" });
+  doc.setFontSize(14);
+  doc.text("Company Registration Form", 105, 28, { align: "center" });
+
+  // Logo (Optional: must be uploaded in same folder)
+  const logo = new Image();
+  logo.src = "logo.png";
+  logo.onload = function() {
+    doc.addImage(logo, "PNG", 20, 10, 30, 15);
+
+    // Draw boxes for each field
+    let y = 40;
+    doc.setFontSize(12);
+    for (const key in data) {
+      doc.rect(20, y - 6, 170, 8); // box
+      doc.text(`${key.replace(/([A-Z])/g, ' $1')}: ${data[key]}`, 22, y);
+      y += 12;
+      if (y > 270) { doc.addPage(); y = 20; } // new page if too long
+    }
+
+    // Signature boxes
+    doc.rect(20, y + 5, 80, 20);
+    doc.text("Applicant Signature", 22, y + 15);
+
+    doc.rect(110, y + 5, 80, 20);
+    doc.text("Date", 112, y + 15);
+
+    // Save PDF
+    doc.save(`${data.companyName.replace(/\s+/g,'_')}_CAC_Form.pdf`);
+  };
+
+  // --- Send to Google Sheets backend ---
+  try {
+    const res = await fetch("https://script.google.com/macros/s/AKfycbxXf8kFb9A4jcK_OZvMlC_mV07HFdxL30b7UlxAMlQ/dev", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    console.log("Data saved:", result);
+  } catch(err) {
+    console.error("Submission failed:", err);
+  }
 });
 </script>
 
