@@ -12,6 +12,8 @@
 .input:focus { border-color: #2563EB; }
 .upload-btn { width: 100%; padding: 12px; border-radius: 10px; background: #e0e7ff; border: 1px dashed #94a3b8; font-weight: 500; cursor:pointer; }
 .required::after { content:" *"; color:red; }
+.btn-submit { width: 100%; padding: 15px; background-color:#2563EB; color:white; font-weight:700; border-radius:12px; font-size:16px; transition:all 0.3s; }
+.btn-submit:hover { background-color:#1d4ed8; transform:scale(1.02);}
 </style>
 </head>
 <body class="bg-slate-100">
@@ -40,6 +42,8 @@
           <option value="">Select Entity Type</option>
           <option>Private Limited Company - ₦35,000</option>
           <option>Public Limited Company - ₦35,000</option>
+          <option>Business Name Registration - ₦35,000</option>
+          <option>Limited Liability Partnership - ₦35,000</option>
         </select>
       </section>
 
@@ -59,12 +63,11 @@
       <section class="mb-6">
         <h2 class="font-semibold mb-4">Directors</h2>
         <div id="directors-container">
-          <!-- Director 1 -->
           <div class="director-section mb-4 border p-4 rounded">
             <h3 class="font-semibold mb-2">Director 1</h3>
             <label class="required">First Name</label>
             <input required name="director_first_name_1" placeholder="First Name" class="input mb-2">
-            <label>Surname</label>
+            <label class="required">Surname</label>
             <input required name="director_surname_1" placeholder="Surname" class="input mb-2">
             <label>Middle Name (Optional)</label>
             <input name="director_middle_name_1" placeholder="Middle Name" class="input mb-2">
@@ -94,7 +97,7 @@
             <input type="hidden" name="director_passport_url_1" id="director_passport_url_1">
           </div>
         </div>
-        <button type="button" onclick="addDirector()" class="btn-primary px-4 py-2 rounded mb-4">Add Director</button>
+        <button type="button" onclick="addDirector()" class="px-4 py-2 rounded bg-green-500 text-white font-semibold mb-4 hover:bg-green-600">Add Director</button>
       </section>
 
       <!-- Secretary -->
@@ -130,26 +133,24 @@
         <input type="hidden" name="secretary_passport_url" id="secretary_passport_url">
       </section>
 
-      <button type="submit" class="w-full btn-primary py-3 rounded-xl font-semibold">Submit Form</button>
+      <button type="submit" class="btn-submit">Submit CAC Form</button>
     </form>
   </div>
 </div>
 
 <script>
 const cloudinaryConfig = { cloudName: "YOUR_CLOUD_NAME", uploadPreset: "YOUR_UPLOAD_PRESET" };
+function uploadID(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e&&r.event==="success"){ document.getElementById(person==='secretary'?"secretary_id_url":"director_id_url_"+person).value=r.info.secure_url; alert("ID uploaded for "+person); } }); }
+function uploadSignature(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e&&r.event==="success"){ document.getElementById(person==='secretary'?"secretary_signature_url":"director_signature_url_"+person).value=r.info.secure_url; alert("Signature uploaded for "+person); } }); }
+function uploadPassport(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e&&r.event==="success"){ document.getElementById(person==='secretary'?"secretary_passport_url":"director_passport_url_"+person).value=r.info.secure_url; alert("Passport uploaded for "+person); } }); }
 
-function uploadID(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e && r.event==="success"){ document.getElementById(person==='secretary'?"secretary_id_url":"director_id_url_"+person).value=r.info.secure_url; alert("ID uploaded for "+person); } }); }
-function uploadSignature(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e && r.event==="success"){ document.getElementById(person==='secretary'?"secretary_signature_url":"director_signature_url_"+person).value=r.info.secure_url; alert("Signature uploaded for "+person); } }); }
-function uploadPassport(person){ cloudinary.openUploadWidget(cloudinaryConfig,(e,r)=>{ if(!e && r.event==="success"){ document.getElementById(person==='secretary'?"secretary_passport_url":"director_passport_url_"+person).value=r.info.secure_url; alert("Passport uploaded for "+person); } }); }
-
-// Dynamic directors
-let directorCount = 1;
-function addDirector() {
+let directorCount=1;
+function addDirector(){
   directorCount++;
-  const container = document.getElementById("directors-container");
-  const div = document.createElement("div");
-  div.className = "director-section mb-4 border p-4 rounded";
-  div.innerHTML = `
+  const container=document.getElementById("directors-container");
+  const div=document.createElement("div");
+  div.className="director-section mb-4 border p-4 rounded";
+  div.innerHTML=`
     <h3 class="font-semibold mb-2">Director ${directorCount}</h3>
     <label class="required">First Name</label>
     <input required name="director_first_name_${directorCount}" placeholder="First Name" class="input mb-2">
@@ -185,40 +186,26 @@ function addDirector() {
   container.appendChild(div);
 }
 
-// Form submission via fetch
 document.getElementById("cacForm").addEventListener("submit", async function(e){
   e.preventDefault();
-  const data = {};
-  document.querySelectorAll("#cacForm [name]").forEach(input => data[input.name] = input.value);
+  const data={};
+  document.querySelectorAll("#cacForm [name]").forEach(input=>data[input.name]=input.value);
 
-  const sheetURL = "https://script.google.com/macros/s/AKfycby8TF4lpFKJ6t_ds6ciH9s2R5lR-bnT196sYPhJm0kN8XndPYpAimGi80WniBWlFWmj/exec"; // Replace with your Web App URL
-  try {
-    const res = await fetch(sheetURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-    const result = await res.json();
-    console.log("Submission response:", result);
+  const sheetURL="https://script.google.com/macros/s/AKfycby8TF4lpFKJ6t_ds6ciH9s2R5lR-bnT196sYPhJm0kN8XndPYpAimGi80WniBWlFWmj/exec"; // Replace with your Web App URL
+  try{
+    const res=await fetch(sheetURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+    const result=await res.json(); console.log("Submission response:",result);
 
-    // PDF generation
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p','mm','a4');
+    const doc=new jsPDF('p','mm','a4');
     doc.setFontSize(18); doc.text("Nextcom CAC Registration Form",105,20,{align:"center"});
     let y=35;
-    for(const key in data){
-      doc.setFontSize(12);
-      doc.text(`${key}: ${data[key]}`,20,y);
-      y+=10; if(y>270){doc.addPage(); y=20;}
-    }
+    for(const key in data){ doc.setFontSize(12); doc.text(`${key}: ${data[key]}`,20,y); y+=10; if(y>270){doc.addPage(); y=20;} }
     doc.save(`${data.company_name_1||"Nextcom"}_Form.pdf`);
 
     alert("Form submitted successfully!");
     this.reset();
-  } catch(err){
-    console.error("Submission failed:", err);
-    alert("Submission failed, check console.");
-  }
+  }catch(err){console.error("Submission failed:",err); alert("Submission failed, check console.");}
 });
 </script>
 </body>
