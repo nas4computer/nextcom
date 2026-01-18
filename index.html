@@ -1,99 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Nextcom CAC Reg Form</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<title>Nextcom CAC Registration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+
+<style>
+.req::after{content:" *";color:red}
+</style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-slate-100">
 
-<div class="max-w-5xl mx-auto p-6">
-<h1 class="text-3xl font-bold text-center mb-6">Nextcom CAC Registration Form</h1>
+<body class="bg-gradient-to-br from-blue-50 via-white to-slate-100 min-h-screen">
 
-<form id="cacForm" class="bg-white p-6 rounded-2xl shadow-xl space-y-6">
+<div class="max-w-6xl mx-auto p-6">
+  <div class="bg-white rounded-3xl shadow-2xl p-8">
 
-<input required name="company_name_1" placeholder="Proposed Company Name 1 *" class="input">
-<input name="company_name_2" placeholder="Proposed Company Name 2 (optional)" class="input">
+    <!-- HEADER -->
+    <div class="text-center mb-8">
+      <img src="https://nextcom.hexat.com/assets/logo.png" class="mx-auto h-14 mb-3" />
+      <h1 class="text-3xl font-bold text-slate-800">Nextcom CAC Registration Form</h1>
+      <p class="text-slate-500 mt-1">Official Corporate Affairs Commission Registration</p>
+    </div>
 
-<select required name="entity_type" class="input">
-<option value="">Select Entity Type *</option>
-<option value="Business Name">Business Name – ₦35,000</option>
-<option value="Limited Company">Limited Company – ₦35,000</option>
-</select>
+<form id="cacForm" class="space-y-10">
 
-<button type="button" onclick="addDirector()" class="btn">+ Add Director</button>
-<div id="directors"></div>
-
-<div class="border p-4 rounded-xl space-y-2">
-<h3 class="font-semibold">Secretary</h3>
-<input required name="secretary_first_name" placeholder="First Name *" class="input">
-<input name="secretary_middle_name" placeholder="Middle Name" class="input">
-<input required name="secretary_surname" placeholder="Surname *" class="input">
-<input required type="date" name="secretary_dob" class="input">
-<input required name="secretary_email" placeholder="Email *" class="input">
-<input required name="secretary_phone" placeholder="Phone *" class="input">
-<button type="button" onclick="uploadFile('secretary_id_url')" class="btn">Upload ID *</button>
-<input type="hidden" name="secretary_id_url">
-<button type="button" onclick="uploadFile('secretary_signature_url')" class="btn">Upload Signature *</button>
-<input type="hidden" name="secretary_signature_url">
-<button type="button" onclick="uploadFile('secretary_passport_url')" class="btn">Upload Passport *</button>
-<input type="hidden" name="secretary_passport_url">
+<!-- COMPANY -->
+<section>
+<h2 class="text-xl font-semibold mb-4">Proposed Company Names</h2>
+<div class="grid md:grid-cols-2 gap-4">
+<input required name="company_name_1" class="input req" placeholder="Proposed Name 1">
+<input name="company_name_2" class="input" placeholder="Proposed Name 2 (Optional)">
 </div>
 
-<button id="submitBtn" type="submit" class="submit">Submit CAC Form</button>
+<select required name="entity_type" class="input mt-4 req">
+<option value="">Select Entity Type</option>
+<option value="Business Name">Business Name – ₦35,000</option>
+<option value="Limited Company">Limited Liability Company – ₦35,000</option>
+</select>
+</section>
+
+<!-- DIRECTORS -->
+<section>
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-xl font-semibold">Directors</h2>
+<button type="button" onclick="addDirector()" class="text-blue-600 font-semibold">+ Add Director</button>
+</div>
+<div id="directors"></div>
+</section>
+
+<!-- SECRETARY -->
+<section>
+<h2 class="text-xl font-semibold mb-4">Secretary</h2>
+<div id="secretary"></div>
+</section>
+
+<!-- SUBMIT -->
+<button id="submitBtn" disabled
+class="w-full py-4 text-lg rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-40">
+Submit CAC Registration
+</button>
+
 </form>
+</div>
 </div>
 
 <script>
+/* CONFIG */
 const sheetURL="https://script.google.com/macros/s/AKfycby8TF4lpFKJ6t_ds6ciH9s2R5lR-bnT196sYPhJm0kN8XndPYpAimGi80WniBWlFWmj/exec";
-const cloudinaryConfig={cloudName:"danzyjpsh",uploadPreset:"nextcom_unsigned"};
-let directorCount=0,uploadsPending=0;
+const cloudinaryConfig={ cloudName:"danzyjpsh", uploadPreset:"nextcom_unsigned" };
+
+let directorCount=0, uploadsPending=0;
+
+/* UI helpers */
+function basePerson(prefix,label,shares=false){
+return `
+<div class="border rounded-xl p-5 space-y-3 mb-4">
+<h3 class="font-semibold">${label}</h3>
+<div class="grid md:grid-cols-3 gap-3">
+<input required name="${prefix}_first_name" class="input req" placeholder="First Name">
+<input name="${prefix}_middle_name" class="input" placeholder="Middle Name">
+<input required name="${prefix}_surname" class="input req" placeholder="Surname">
+</div>
+<input required type="date" name="${prefix}_dob" class="input req mt-2">
+<input required name="${prefix}_email" class="input req mt-2" placeholder="Email">
+<input required name="${prefix}_phone" class="input req mt-2" placeholder="Phone">
+${shares?`<input required type="number" name="${prefix}_shares" class="input req mt-2" placeholder="Shares Allotted">`:""}
+<div class="grid md:grid-cols-3 gap-3 mt-3">
+${uploadBtn(prefix+"_id_url","Upload ID")}
+${uploadBtn(prefix+"_signature_url","Upload Signature")}
+${uploadBtn(prefix+"_passport_url","Upload Passport")}
+</div>
+</div>`;
+}
+
+function uploadBtn(field,label){
+return `
+<button type="button" onclick="uploadFile('${field}')" class="border-dashed border rounded-lg py-3">
+${label}
+</button>
+<input type="hidden" name="${field}">
+`;
+}
 
 function addDirector(){
- directorCount++;
- const d=document.createElement("div");
- d.className="border p-4 rounded-xl space-y-2 mt-2";
- d.innerHTML=`
- <h3 class="font-semibold">Director ${directorCount}</h3>
- <input required name="director_first_name_${directorCount}" placeholder="First Name *" class="input">
- <input name="director_middle_name_${directorCount}" placeholder="Middle Name" class="input">
- <input required name="director_surname_${directorCount}" placeholder="Surname *" class="input">
- <input required type="number" name="director_shares_${directorCount}" placeholder="Shares Allotted *" class="input">
- <button type="button" onclick="uploadFile('director_id_url_${directorCount}')" class="btn">Upload ID *</button>
- <input type="hidden" name="director_id_url_${directorCount}">
- <button type="button" onclick="uploadFile('director_signature_url_${directorCount}')" class="btn">Upload Signature *</button>
- <input type="hidden" name="director_signature_url_${directorCount}">
- <button type="button" onclick="uploadFile('director_passport_url_${directorCount}')" class="btn">Upload Passport *</button>
- <input type="hidden" name="director_passport_url_${directorCount}">
- `;
- document.getElementById("directors").appendChild(d);
+directorCount++;
+document.getElementById("directors")
+.insertAdjacentHTML("beforeend",basePerson(`director_${directorCount}`,"Director "+directorCount,true));
 }
 
+document.getElementById("secretary").innerHTML=basePerson("secretary","Secretary");
+
+/* Upload */
 function uploadFile(field){
- uploadsPending++;
- cloudinary.openUploadWidget({...cloudinaryConfig,sources:['camera','local']},(e,r)=>{
-  if(!e && r.event==="success"){
-    document.querySelector(`[name="${field}"]`).value=r.info.secure_url;
-    uploadsPending--;
-  }
- });
+uploadsPending++;
+updateSubmit();
+cloudinary.openUploadWidget(
+{...cloudinaryConfig,sources:["camera","local"]},
+(e,r)=>{
+ if(!e && r.event==="success"){
+ document.querySelector(`[name="${field}"]`).value=r.info.secure_url;
+ uploadsPending--;
+ updateSubmit();
+ }
+});
 }
 
+function updateSubmit(){
+document.getElementById("submitBtn").disabled=uploadsPending>0;
+}
+
+/* Submit */
 document.getElementById("cacForm").addEventListener("submit",async e=>{
- e.preventDefault();
- if(uploadsPending>0){alert("Wait for uploads");return;}
- const data=Object.fromEntries(new FormData(e.target));
- const res=await fetch(sheetURL,{method:"POST",body:JSON.stringify(data)});
- if(await res.text()) alert("Submitted successfully");
+e.preventDefault();
+if(uploadsPending>0) return alert("Uploads still in progress");
+const data=Object.fromEntries(new FormData(e.target));
+const res=await fetch(sheetURL,{method:"POST",body:JSON.stringify(data)});
+alert("Submitted successfully. We will contact you shortly.");
+e.target.reset();
 });
 </script>
 
 <style>
-.input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px}
-.btn{padding:10px;border:1px dashed #94a3b8;border-radius:10px;width:100%;margin-top:4px}
-.submit{background:#2563eb;color:#fff;padding:14px;border-radius:12px;width:100%;font-weight:600;margin-top:12px}
+.input{padding:12px;border:1px solid #cbd5e1;border-radius:10px;width:100%}
 </style>
 </body>
 </html>
