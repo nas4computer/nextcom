@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Nextcom CAC Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100">
+<div class="max-w-6xl mx-auto mt-10 bg-white p-6 rounded-xl shadow">
+<h1 class="text-2xl font-bold mb-4">Nextcom CAC Admin Dashboard</h1>
+
+<div class="flex gap-2 mb-4">
+<input id="pin" class="input" placeholder="Admin PIN">
+<button onclick="login()" class="bg-blue-700 text-white px-4 rounded">Login</button>
+</div>
+
+<table class="w-full text-sm border">
+<thead class="bg-gray-200">
+<tr>
+<th>Company</th><th>Email</th><th>Phone</th><th>Status</th><th>PDF</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="rows"></tbody>
+</table>
+</div>
+
+<script>
+const sheetURL="https://script.google.com/macros/s/AKfycby8TF4lpFKJ6t_ds6ciH9s2R5lR-bnT196sYPhJm0kN8XndPYpAimGi80WniBWlFWmj/exec";
+const ADMIN_PIN="4321"; 
+let token="";
+
+async function login(){
+  if(document.getElementById("pin").value!==ADMIN_PIN) return alert("Access Denied");
+  token="ok";
+  load();
+}
+
+async function load(){
+  const r=await fetch(sheetURL+"?adminData="+token);
+  const d=await r.json();
+  document.getElementById("rows").innerHTML=d.map(r=>`
+    <tr>
+      <td>${r.company}</td><td>${r.email}</td><td>${r.phone}</td><td>${r.status}</td>
+      <td>${r.pdf?`<a href='${r.pdf}' class='text-blue-600'>PDF</a>`:"-"}</td>
+      <td>
+        <button onclick="setStatus(${r.row},'IN REVIEW')" class="text-yellow-600">IN REVIEW</button>
+        <button onclick="setStatus(${r.row},'FILED')" class="text-green-600">FILED</button>
+        <button onclick="setStatus(${r.row},'COMPLETED')" class="text-blue-600">COMPLETED</button>
+      </td>
+    </tr>`).join("");
+}
+
+async function setStatus(row,status){
+  await fetch(sheetURL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({admin:true,token,row,status})});
+  load();
+}
+</script>
+</body>
+</html>
