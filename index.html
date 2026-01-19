@@ -1,99 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>Nextcom CAC Registration</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
 
 <style>
 .req::after{content:" *";color:red}
+.input{padding:12px;border:1px solid #cbd5e1;border-radius:10px;width:100%}
 </style>
 </head>
-
 <body class="bg-gradient-to-br from-blue-50 via-white to-slate-100 min-h-screen">
 
 <div class="max-w-6xl mx-auto p-6">
   <div class="bg-white rounded-3xl shadow-2xl p-8">
-
-    <!-- HEADER -->
     <div class="text-center mb-8">
-      <img src="https://nextcom.hexat.com/assets/logo.png" class="mx-auto h-14 mb-3" />
+      <img src="https://nextcom.hexat.com/assets/logo.png" class="mx-auto h-14 mb-3">
       <h1 class="text-3xl font-bold text-slate-800">Nextcom CAC Registration Form</h1>
       <p class="text-slate-500 mt-1">Official Corporate Affairs Commission Registration</p>
     </div>
 
-<form id="cacForm" class="space-y-10">
+    <form id="cacForm" class="space-y-10">
 
-<!-- COMPANY -->
-<section>
-<h2 class="text-xl font-semibold mb-4">Proposed Company Names</h2>
-<div class="grid md:grid-cols-2 gap-4">
-<input required name="company_name_1" class="input req" placeholder="Proposed Name 1">
-<input name="company_name_2" class="input" placeholder="Proposed Name 2 (Optional)">
-</div>
+    <!-- COMPANY -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Proposed Company Names</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <input required name="company_name_1" class="input req" placeholder="Proposed Name 1">
+        <input name="company_name_2" class="input" placeholder="Proposed Name 2 (Optional)">
+      </div>
 
-<select required name="entity_type" class="input mt-4 req">
-<option value="">Select Entity Type</option>
-<option value="Business Name">Business Name – ₦35,000</option>
-<option value="Limited Company">Limited Liability Company – ₦35,000</option>
-</select>
-</section>
+      <select required name="entity_type" class="input mt-4 req">
+        <option value="">Select Entity Type</option>
+        <option value="Business Name">Business Name – ₦35,000</option>
+        <option value="Limited Company">Limited Liability Company – ₦35,000</option>
+      </select>
+    </section>
 
-<!-- DIRECTORS -->
-<section>
-<div class="flex justify-between items-center mb-4">
-<h2 class="text-xl font-semibold">Directors</h2>
-<button type="button" onclick="addDirector()" class="text-blue-600 font-semibold">+ Add Director</button>
-</div>
-<div id="directors"></div>
-</section>
+    <!-- DIRECTORS -->
+    <section>
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold">Directors</h2>
+        <button type="button" onclick="addDirector()" class="text-blue-600 font-semibold">+ Add Director</button>
+      </div>
+      <div id="directors"></div>
+    </section>
 
-<!-- SECRETARY -->
-<section>
-<h2 class="text-xl font-semibold mb-4">Secretary</h2>
-<div id="secretary"></div>
-</section>
+    <!-- SECRETARY -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Secretary</h2>
+      <div id="secretary"></div>
+    </section>
 
-<!-- SUBMIT -->
-<button id="submitBtn" disabled
-class="w-full py-4 text-lg rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-40">
-Submit CAC Registration
-</button>
+    <!-- SUBMIT -->
+    <button id="submitBtn" disabled
+      class="w-full py-4 text-lg rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-40">
+      Submit CAC Registration
+    </button>
 
-</form>
-</div>
+    </form>
+  </div>
 </div>
 
 <script>
-/* CONFIG */
 const sheetURL="https://script.google.com/macros/s/AKfycby8TF4lpFKJ6t_ds6ciH9s2R5lR-bnT196sYPhJm0kN8XndPYpAimGi80WniBWlFWmj/exec";
 const cloudinaryConfig={ cloudName:"danzyjpsh", uploadPreset:"nextcom_unsigned" };
 
 let directorCount=0, uploadsPending=0;
-
-/* UI helpers */
-function basePerson(prefix,label,shares=false){
-return `
-<div class="border rounded-xl p-5 space-y-3 mb-4">
-<h3 class="font-semibold">${label}</h3>
-<div class="grid md:grid-cols-3 gap-3">
-<input required name="${prefix}_first_name" class="input req" placeholder="First Name">
-<input name="${prefix}_middle_name" class="input" placeholder="Middle Name">
-<input required name="${prefix}_surname" class="input req" placeholder="Surname">
-</div>
-<input required type="date" name="${prefix}_dob" class="input req mt-2">
-<input required name="${prefix}_email" class="input req mt-2" placeholder="Email">
-<input required name="${prefix}_phone" class="input req mt-2" placeholder="Phone">
-${shares?`<input required type="number" name="${prefix}_shares" class="input req mt-2" placeholder="Shares Allotted">`:""}
-<div class="grid md:grid-cols-3 gap-3 mt-3">
-${uploadBtn(prefix+"_id_url","Upload ID")}
-${uploadBtn(prefix+"_signature_url","Upload Signature")}
-${uploadBtn(prefix+"_passport_url","Upload Passport")}
-</div>
-</div>`;
-}
 
 function uploadBtn(field,label){
 return `
@@ -104,46 +79,74 @@ ${label}
 `;
 }
 
-function addDirector(){
-directorCount++;
-document.getElementById("directors")
-.insertAdjacentHTML("beforeend",basePerson(`director_${directorCount}`,"Director "+directorCount,true));
+// Base person template
+function basePerson(prefix,label,shares=false){
+return `
+<div class="border rounded-xl p-5 space-y-3 mb-4">
+<h3 class="font-semibold">${label}</h3>
+
+<div class="grid md:grid-cols-3 gap-3">
+<input required name="${prefix}_first_name" class="input req" placeholder="First Name">
+<input name="${prefix}_middle_name" class="input" placeholder="Middle Name">
+<input required name="${prefix}_surname" class="input req" placeholder="Surname">
+</div>
+
+<input required type="date" name="${prefix}_dob" class="input req mt-2">
+<input required name="${prefix}_email" class="input req mt-2" placeholder="Email">
+<input required name="${prefix}_phone" class="input req mt-2" placeholder="Phone">
+
+<select required name="${prefix}_id_type" class="input req mt-2"
+  onchange="setIdRule(this,'${prefix}_id_number')">
+<option value="">Select ID Type</option>
+<option value="NIN" data-length="11">National ID (NIN – 11 digits)</option>
+<option value="PASSPORT" data-length="9">International Passport</option>
+<option value="VOTERS" data-length="19">Voter’s Card (VIN)</option>
+<option value="DRIVERS" data-length="11">Driver’s License</option>
+</select>
+
+<input required name="${prefix}_id_number" class="input req mt-2" placeholder="ID Number" inputmode="numeric">
+
+${shares?`<input required type="number" name="${prefix}_shares" class="input req mt-2" placeholder="Shares Allotted">`:""}
+
+<div class="grid md:grid-cols-3 gap-3 mt-3">
+${uploadBtn(prefix+"_id_url","Upload ID")}
+${uploadBtn(prefix+"_signature_url","Upload Signature")}
+${uploadBtn(prefix+"_passport_url","Upload Passport")}
+</div>
+</div>`;
 }
 
+// Add director
+function addDirector(){directorCount++;document.getElementById("directors").insertAdjacentHTML("beforeend",basePerson(`director_${directorCount}`,"Director "+directorCount,true));}
 document.getElementById("secretary").innerHTML=basePerson("secretary","Secretary");
 
-/* Upload */
 function uploadFile(field){
-uploadsPending++;
-updateSubmit();
-cloudinary.openUploadWidget(
-{...cloudinaryConfig,sources:["camera","local"]},
-(e,r)=>{
- if(!e && r.event==="success"){
- document.querySelector(`[name="${field}"]`).value=r.info.secure_url;
- uploadsPending--;
- updateSubmit();
- }
+uploadsPending++;updateSubmit();
+cloudinary.openUploadWidget({...cloudinaryConfig,sources:["camera","local"]},(e,r)=>{
+ if(!e && r.event==="success"){document.querySelector(`[name="${field}"]`).value=r.info.secure_url;uploadsPending--;updateSubmit();}
 });
 }
 
-function updateSubmit(){
-document.getElementById("submitBtn").disabled=uploadsPending>0;
+function updateSubmit(){document.getElementById("submitBtn").disabled=uploadsPending>0;}
+
+function setIdRule(select,inputName){
+ const opt=select.options[select.selectedIndex];
+ const len=opt.getAttribute("data-length");
+ const input=document.querySelector(`[name="${inputName}"]`);
+ input.value="";input.maxLength=len;input.minLength=len;
+ input.placeholder=`Enter exactly ${len} digits`;
+ input.oninput=()=>{input.value=input.value.replace(/\D/g,"").slice(0,len);}
 }
 
-/* Submit */
+// Submit
 document.getElementById("cacForm").addEventListener("submit",async e=>{
-e.preventDefault();
-if(uploadsPending>0) return alert("Uploads still in progress");
-const data=Object.fromEntries(new FormData(e.target));
-const res=await fetch(sheetURL,{method:"POST",body:JSON.stringify(data)});
-alert("Submitted successfully. We will contact you shortly.");
-e.target.reset();
+ e.preventDefault();
+ if(uploadsPending>0) return alert("Uploads in progress");
+ const data=Object.fromEntries(new FormData(e.target));
+ const res=await fetch(sheetURL,{method:"POST",body:JSON.stringify(data)});
+ const result=await res.json();
+ if(result.status==="success"){alert("Submitted successfully!\nDownload PDF: "+result.pdf);e.target.reset();}
 });
 </script>
-
-<style>
-.input{padding:12px;border:1px solid #cbd5e1;border-radius:10px;width:100%}
-</style>
 </body>
 </html>
